@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Slang Database</title>
+    </head>
+    <body>
+        <h1> Gen-Z English Slang Database</h1>
+        <h2><b>By: Sam Ruben Abraham, 2023BCD0002</b></h2>
+        <hr>
+        <h3>What is Gen-Z English Slang?</h3>
+        <p>Gen-Z English Slang refers to the informal language and expressions used by the Generation Z demographic, 
+            typically born between the mid-1990s and early 2010s. This slang often includes abbreviations, acronyms, 
+            and unique phrases that have emerged from social media platforms. </p>
+        <h3>Examples of Gen-Z English Slang:</h3>
+        <ul>
+            <li><b>Lit:</b> Used to describe something exciting or excellent.</li>
+            <li><b>Salty:</b> Feeling bitter or upset about something.</li>
+            <li><b>GOAT:</b> Acronym for "Greatest of All Time."</li>
+            <li><b>Flex:</b> To show off or boast about something.</li>
+            <li><b>Tea:</b> Gossip or interesting news.</li>
+        </ul>
+        <!-- Render table provided as context in the Python backend-->
+        <h3>Slang Database Table:</h3>
+        <div>
+            <h4>Add New Slang Term:</h4>
+            <form onsubmit="addSlang(event)">
+                <input type="text" id="termInput" placeholder="Enter slang term" required>
+                <input type="text" id="definitionInput" placeholder="Enter definition" required>
+                <button type="submit">Add</button>
+            </form>
+        </div>
+        <hr>
+        <div>
+            <input type="text" id="searchInput" placeholder="Search slang...">
+            <button onclick="searchSlang()">Search</button>
+        </div>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Slang</th>
+                    <th>Meaning</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slang in slang_data %}
+                <tr>
+                    <td>{{ slang.term }}</td>
+                    <td>{{ slang.definition }}</td>
+                    <td>
+                        <button onclick="editSlang('{{ slang.term }}')">Edit</button>
+                        <button onclick="deleteSlang('{{ slang.term }}')">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <script>
+            function addSlang(event) {
+                event.preventDefault();
+                const term = document.getElementById('termInput').value;
+                const definition = document.getElementById('definitionInput').value;
+                
+                fetch('/add_slang', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({term: term, definition: definition})
+                }).then(response => response.json()).then(data => {
+                    alert(data.message || data.error);
+                    location.reload();
+                }).catch(error => alert('Error: ' + error));
+            }
+
+            function deleteSlang(term) {
+                if (confirm('Are you sure you want to delete "' + term + '"?')) {
+                    fetch('/delete_slang', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({term: term})
+                    }).then(response => response.json()).then(data => {
+                        alert(data.message);
+                        location.reload();
+                    });
+                }
+            }
+
+            function editSlang(term) {
+                let newDef = prompt('Enter new definition for "' + term + '":');
+                if (newDef) {
+                    fetch('/update_slang', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({term: term, definition: newDef})
+                    }).then(response => response.json()).then(data => {
+                        alert(data.message);
+                        location.reload();
+                    });
+                }
+            }
+
+            function searchSlang() {
+                const query = document.getElementById('searchInput').value;
+                fetch('/search_slang?term=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        const tbody = document.querySelector('tbody');
+                        tbody.innerHTML = '';
+                        data.forEach(slang => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${slang.term}</td>
+                                <td>${slang.definition}</td>
+                                <td>
+                                    <button onclick="editSlang('${slang.term}')">Edit</button>
+                                    <button onclick="deleteSlang('${slang.term}')">Delete</button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    });
+            }
+        </script>
+    </body>
+</html>
