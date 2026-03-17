@@ -18,7 +18,7 @@ pipeline{
                 sh '''
                 docker stop 23bcd2-slangdb || true
                 docker rm 23bcd2-slangdb || true
-                docker run -d -p 5000:3000 -v assignment5:/app --name 23bcd2-slangdb 23bcd2-assignment5:latest
+                docker run -d -p 3000:3000 -v assignment5:/app --name 23bcd2-slangdb 23bcd2-assignment5:latest
                 '''
             }
         }
