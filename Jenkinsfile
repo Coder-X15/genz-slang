@@ -16,9 +16,6 @@ pipeline{
         stage('Run Container') {
             steps {
                 sh '''
-                if ! docker volume ls | grep assignment5; then \
-                    docker volume create assignment5 \
-                fi
                 docker stop 23bcd2-slangdb || true
                 docker rm 23bcd2-slangdb || true
                 docker run -d -p 5000:5000 -v assignment5:/app --name 23bcd2-slangdb 23bcd2-assignment5:latest
