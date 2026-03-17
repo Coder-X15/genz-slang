@@ -1,28 +1,46 @@
 pipeline{
     agent any
     stages{
-        stage('Checkout'){
+        stage('Checkout SCM'){
             steps{
-                echo 'Checking out the code...'
                 checkout scm
             }
         }
-        stage('Build'){
-            steps{
-                echo 'Building the application...'
-                sh 'docker build -t flask-webapp .'
+        stage('Creating Docker Image') {
+            steps {
+                echo 'Building Docker Image...'
+                sh 'docker build -t 23bcd2-assignment5:latest .'
             }
         }
-        stage('Test'){
-            steps{
-                echo 'Testing the application...'
-                // Add your testing commands here
+
+        stage('Run Container') {
+            steps {
+                sh '''
+                if ! docker volume ls | grep assignment5; then \
+                    docker volume create assignment5 \
+                fi
+                docker stop 23bcd2-slangdb || true
+                docker rm 23bcd2-slangdb || true
+                docker run -d -p 5000:5000 -v assignment5:/app --name 23bcd2-slangdb 23bcd2-assignment5:latest
+                '''
             }
         }
-        stage('Deploy'){
-            steps{
-                echo 'Deploying the application...'
-                // Add your deployment commands here
+
+        stage('Tagging Docker Image') {
+            steps {
+                echo 'Tagging Docker Image...'
+                sh 'docker tag 23bcd2-assignment5:latest muzankibetsuji/23bcd2-assignment5:latest'
+            }
+        }
+
+        stage('Pushing Docker Image') {
+            steps {
+                // you fucking need the credentials, whore!
+                withCredentials([string(credentialsId: 'dockerhub-token', variable:'DOCKER_TOKEN')]){
+                    echo 'Pushing Docker Image...'
+                    sh 'echo "$DOCKER_TOKEN" | docker login -u muzankibetsuji --password-stdin'
+                    sh 'docker push muzankibetsuji/23bcd2-assignment5:latest'
+                }
             }
         }
     }
