@@ -6,10 +6,19 @@ pipeline{
                 checkout scm
             }
         }
+
+        environment{
+            DOCKER_IMAGE='23bcd2-assignment5:latest'
+            DOCKERHUB_USERNAME='muzankibetsuji'
+            EC2_USER='ubuntu'
+            EC2_IP='18.61.231.99'
+
+        }
+
         stage('Creating Docker Image') {
             steps {
                 echo 'Building Docker Image...'
-                sh 'docker build -t 23bcd2-assignment5:latest .'
+                sh 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
 
@@ -18,7 +27,7 @@ pipeline{
                 sh '''
                 docker stop 23bcd2-slangdb || true
                 docker rm 23bcd2-slangdb || true
-                docker run -d -p 3000:3000 -v assignment5:/app --name 23bcd2-slangdb 23bcd2-assignment5:latest
+                docker run -d -p 3000:3000 -v assignment5:/app --name 23bcd2-slangdb ${DOCKER_IMAGE}
                 '''
             }
         }
@@ -26,7 +35,7 @@ pipeline{
         stage('Tagging Docker Image') {
             steps {
                 echo 'Tagging Docker Image...'
-                sh 'docker tag 23bcd2-assignment5:latest muzankibetsuji/23bcd2-assignment5:latest'
+                sh 'docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}'
             }
         }
 
@@ -35,8 +44,21 @@ pipeline{
                 // you fucking need the credentials, whore!
                 withCredentials([string(credentialsId: 'dockerhub-token', variable:'DOCKER_TOKEN')]){
                     echo 'Pushing Docker Image...'
-                    sh 'echo "$DOCKER_TOKEN" | docker login -u muzankibetsuji --password-stdin'
-                    sh 'docker push muzankibetsuji/23bcd2-assignment5:latest'
+                    sh 'echo "$DOCKER_TOKEN" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin'
+                    sh 'docker push ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}'
+                }
+            }
+        }
+
+        stage('Deploy on AWS EC2'){
+            steps{
+                sshagent([credentials:['ec2-pem-file']]){
+                    sh """
+                        ssh -o StrictHostingKeyChecking=no ${EC2_USER}@${EC2_IP} << EOF
+                            echo "Connected to EC2"
+                            uptime
+                        EOF
+                    """
                 }
             }
         }
