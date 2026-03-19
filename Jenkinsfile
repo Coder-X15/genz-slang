@@ -1,18 +1,17 @@
 pipeline{
     agent any
-    stages{
-        stage('Checkout SCM'){
-            steps{
-                checkout scm
-            }
-        }
-
-        environment{
+    environment{
             DOCKER_IMAGE='23bcd2-assignment5:latest'
             DOCKERHUB_USERNAME='muzankibetsuji'
             EC2_USER='ubuntu'
             EC2_IP='18.61.231.99'
 
+    }
+    stages{
+        stage('Checkout SCM'){
+            steps{
+                checkout scm
+            }
         }
 
         stage('Creating Docker Image') {
