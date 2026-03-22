@@ -55,8 +55,7 @@ pipeline{
                     sh """
                         ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 ${EC2_USER}@${EC2_IP} "
                             echo "Connected to EC2"
-                            docker --version
-                            exit
+                            docker run -d --name genz_app -p 3000:3000 ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}
                         "
                     """
                 }
