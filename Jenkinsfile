@@ -53,7 +53,7 @@ pipeline{
             steps{
                 sshagent([credentials:['ec2-pem-file']]){
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "
+                        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 ${EC2_USER}@${EC2_IP} "
                             echo "Connected to EC2"
                             exit
                         "
