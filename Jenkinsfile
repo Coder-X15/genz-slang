@@ -4,7 +4,7 @@ pipeline{
             DOCKER_IMAGE='23bcd2-assignment5:latest'
             DOCKERHUB_USERNAME='muzankibetsuji'
             EC2_USER='ubuntu'
-            EC2_IP='18.61.231.99'
+            EC2_IP='16.112.159.37'
 
     }
     stages{
