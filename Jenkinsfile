@@ -55,6 +55,7 @@ pipeline{
                     sh """
                         ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "
                             echo "Connected to EC2"
+                            exit
                         "
                     """
                 }
