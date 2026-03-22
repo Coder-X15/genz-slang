@@ -53,7 +53,7 @@ pipeline{
             steps{
                 sshagent([credentials:['ec2-pem-file']]){
                     sh """
-                        ssh -o StrictHostingKeyChecking=no ${EC2_USER}@${EC2_IP} << EOF
+                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} << EOF
                             echo "Connected to EC2"
                             uptime
                         EOF
