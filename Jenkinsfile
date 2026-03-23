@@ -4,7 +4,7 @@ pipeline{
             DOCKER_IMAGE='23bcd2-assignment5:latest'
             DOCKERHUB_USERNAME='muzankibetsuji'
             EC2_USER='ubuntu'
-            EC2_IP='16.112.159.37'
+            EC2_IP='18.60.222.200'
 
     }
     stages{
@@ -56,6 +56,7 @@ pipeline{
                         ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 ${EC2_USER}@${EC2_IP} "
                             echo "Connected to EC2"
                             sudo docker pull ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}
+                            sudo docker rm -f genz_app
                             sudo docker run -d --name genz_app -p 3000:3000 ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}
                         "
                     """
